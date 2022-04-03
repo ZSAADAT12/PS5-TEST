@@ -1,0 +1,11 @@
+﻿{
+  "ConnectionStrings": {
+    "TESTConnection": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=35.172.227.182)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=DEV))));User ID=C##_UD_ZSAADAT;Password=C##_UD_ZSAADAT;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
