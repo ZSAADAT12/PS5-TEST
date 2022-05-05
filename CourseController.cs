@@ -40,16 +40,19 @@ namespace SWARM.Server.Controllers.Application
             List<Course> lstCourses = await _context.Courses.OrderBy(x => x.CourseNo).ToListAsync();
             return Ok(lstCourses);
         }
-        [HttpGet]
-        [Route("Get/{keyvalue}")]
-        public async Task<IActionResult> Get(int keyvalue)
-        {
-            try {
-            Course itmCourse = await _context.Courses
-                .Where(x => x.CourseNo == keyvalue).FirstOrDefaultAsync();
 
-            return Ok(itmCourse);
-        }
+        [HttpGet]
+        [Route("Get/{SchoolId}/{courseNo}")]
+        public async Task<IActionResult> Get(int pSchoolId, int pCourseNo)
+        {
+            try
+            {
+                Course itmCourse = await _context.Courses
+                   .Where(x => x.SchoolId == SchoolId &&
+                               x.CourseNo == CourseNo)
+                       .FirstOrDefaultAsync();
+                return Ok(itmCourse);
+            }
             catch (Exception e)
             {
                 Console.Write(e.Message);
@@ -58,8 +61,8 @@ namespace SWARM.Server.Controllers.Application
         }
 
         [HttpDelete]
-        [Route("Delete/{keyvalue}")]
-        public async Task<IActionResult> Delete(int pSchoolId, int pCourseNo)
+        [Route("Delete/{SchoolId}/{CourseNo}")]
+        public async Task<IActionResult> Delete(int SchoolId, int CourseNo)
         {
             var trans = _context.Database.BeginTransaction();
             try
@@ -67,15 +70,19 @@ namespace SWARM.Server.Controllers.Application
 
 
                 Course itmCourse = await _context.Courses
-                   .Where(x => x.CourseNo == pCourseNo && x.SchoolId == pSchoolId).FirstOrDefaultAsync();
+                   .Where(x => x.SchoolId == SchoolId &&
+                               x.CourseNo == CourseNo)
+                       .FirstOrDefaultAsync();
                 _context.Remove(itmCourse);
+                await _context.SaveChangesAsync();
 
+                await trans.CommitAsync();
 
-                return Ok();
+                return Ok("Record successfully removed.");
             }
             catch (Exception ex)
             {
-                
+                trans.Rollback();
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
@@ -87,8 +94,9 @@ namespace SWARM.Server.Controllers.Application
             try
             {
                 var _crse = await _context.Courses
-                    .Where(x => x.CourseNo == _Item.CourseNo && x.SchoolId == _Item.SchoolId ).FirstOrDefaultAsync();
-
+                    .Where(x => x.SchoolId == SchoolId &&
+                               x.CourseNo == CourseNo)
+                       .FirstOrDefaultAsync();
                 if (_crse != null)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Course already exist!");
@@ -124,10 +132,10 @@ namespace SWARM.Server.Controllers.Application
         [HttpPut]
         public async Task<IActionResult> put([FromBody] Course _Item)
         {
-        
+
             try
             {
-                var _crse = await _context.Courses
+                var _crse = await_context.Courses
                     .Where(x => x.CourseNo == _Item.CourseNo).FirstOrDefaultAsync();
 
                 if (_crse == null)
@@ -154,19 +162,19 @@ namespace SWARM.Server.Controllers.Application
             }
         }
 
-        Task<IActionResult> iBaseController<Course>.Delete(int keyvalue)
+        public Task<IActionResult> Delete(int keyvalue)
         {
             throw new NotImplementedException();
-            }
+        }
+
+        public Task<IActionResult> Get(int keyvalue)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    internal class await_context
+    {
+        public static IEnumerable<object> Courses { get; internal set; }
     }
 }
-
-
-
-
-
-
-
-
-
-
